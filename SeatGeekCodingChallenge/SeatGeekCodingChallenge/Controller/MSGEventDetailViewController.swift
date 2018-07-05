@@ -28,7 +28,7 @@ class MSGEventDetailViewController: UIViewController {
     @IBOutlet weak var eventDetailTimeLabel: UILabel!
     @IBOutlet weak var eventDetailLocationLabel: UILabel!
     
-    public var eventToDisplay: MSGEventDescriptor?
+    public weak var eventToDisplay: MSGEventDescriptor?
     
     // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
@@ -36,47 +36,54 @@ class MSGEventDetailViewController: UIViewController {
         
         // Do any additional setup after loading the view.
         
-        if let eventToDisplay = eventToDisplay {
+        if let unwrappedEventToDisplay = eventToDisplay {
             updateIsFavoriteButton()
             
             eventDetailImageView.image = UIImage(named: "lion_2")!
-            if let imageData = eventToDisplay.imageData {
+            if let imageData = unwrappedEventToDisplay.imageData {
                 // The UIImage should be saved instead of converted each time
                 eventDetailImageView.image = UIImage(data: imageData)
             }
             
             eventDetailImageView.layer.cornerRadius = ViewConstants.cornerRadius
-            eventDetailTimeLabel.text = eventToDisplay.localTime
-            eventDetailLocationLabel.text = eventToDisplay.location
+            eventDetailTimeLabel.text = unwrappedEventToDisplay.localTime
+            eventDetailLocationLabel.text = unwrappedEventToDisplay.location
             
             formatTitleBar()
         }
     }
     
     private func formatTitleBar() {
-        if let eventToDisplay = eventToDisplay {
+        if let unwrappedEventToDisplay = eventToDisplay {
             
             guard let navBarFrameSize = navigationController?.navigationBar.frame.size else { return }
-            let navBarTitleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: navBarFrameSize.width, height: navBarFrameSize.height * 2))
+            let navBarTitleLabel = UILabel(frame: CGRect(x: 0,
+                                                         y: 0,
+                                                         width: navBarFrameSize.width,
+                                                         height: navBarFrameSize.height * 2))
             navBarTitleLabel.numberOfLines = 0
             navBarTitleLabel.font = UIFont.boldSystemFont(ofSize: 20.0)
-            navBarTitleLabel.textAlignment = .left
-            navBarTitleLabel.text = eventToDisplay.title
+            navBarTitleLabel.textAlignment = .center
+            navBarTitleLabel.adjustsFontSizeToFitWidth = true
+            navBarTitleLabel.minimumScaleFactor = 0.5
+            navBarTitleLabel.text = unwrappedEventToDisplay.title
             
             navigationItem.titleView = navBarTitleLabel
         }
     }
     
     @IBAction func toggleFavorite(_ sender: UIBarButtonItem) {
-        if let eventToDisplay = eventToDisplay {
-            eventToDisplay.toggleIsFavorite()
+        if let unwrappedEventToDisplay = eventToDisplay {
+            unwrappedEventToDisplay.toggleIsFavorite()
             updateIsFavoriteButton()
         }
     }
     
     private func updateIsFavoriteButton() {
-        if let eventToDisplay = eventToDisplay {
-            favoriteBarButtonItem.image = (eventToDisplay.isFavorite) ? EventFavoriteImage.favorite.image : EventFavoriteImage.unfavorite.image
+        if let unwrappedEventToDisplay = eventToDisplay {
+            favoriteBarButtonItem.image = (unwrappedEventToDisplay.isFavorite) ?
+                                            EventFavoriteImage.favorite.image :
+                                            EventFavoriteImage.unfavorite.image
         }
     }
 }
